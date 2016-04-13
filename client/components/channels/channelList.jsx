@@ -23,6 +23,6 @@ ChannelList.propTypes = {
   channels: PropTypes.array.isRequired,
   setChannel: PropTypes.func.isRequired,
   activeChannel: PropTypes.object.isRequired
-}
+};
 
 export default ChannelList;

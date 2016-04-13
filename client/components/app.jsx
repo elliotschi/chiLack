@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import ChannelSection from './channels/channelSection';
 import UserSection from './users/userSection';
+import MessageSection from './messages/messageSection';
 
 class App extends Component {
   constructor(props) {
@@ -9,14 +10,14 @@ class App extends Component {
     this.state = {
       channels: [],
       users: [],
+      messages: [],
       activeChannel: {}
     };
   }
-  
+  // channel functions
   addChannel(name) {
     let {channels} = this.state;
-    channels = channels.slice();
-    channels.push({id: channels.length, name});
+    channels = channels.concat([{id: channels.length, name}]);
     this.setState({channels});
   }
   
@@ -24,11 +25,23 @@ class App extends Component {
     this.setState({activeChannel});
   }
   
+  // user functions
   setUserName(name) {
     let {users} = this.state;
-    users = users.slice();
-    users.push({id: users.length, name});
+    users = users.concat([{id: users.length, name}]);
     this.setState({users});
+  }
+  
+  // message functions
+  addMessage(body) {
+    // gets messages and users arrays from the state object
+    let {messages, users} = this.state;
+    let createdAt = new Date();
+    let author = users.length > 0 ? users[0].name : 'anon';
+    
+    messages = messages.concat([{id: messages.length, body, createdAt, author}]);
+    
+    this.setState({messages});
   }
   
   render() {
@@ -45,6 +58,11 @@ class App extends Component {
             setUserName={this.setUserName.bind(this)}
           />
         </div>
+        
+        <MessageSection
+          {...this.state}
+          addMessage={this.addMessage.bind(this)}
+        />
       </div>
     );
   }
