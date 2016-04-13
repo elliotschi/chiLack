@@ -22,3 +22,5 @@ UserSection.propTypes = {
   users: PropTypes.array.isRequired,
   setUserName: PropTypes.func.isRequired
 }
+
+export default UserSection

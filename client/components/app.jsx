@@ -7,7 +7,9 @@ class App extends Component {
     super(props);
     
     this.state = {
-      channels: []
+      channels: [],
+      users: [],
+      activeChannel: {}
     };
   }
   
@@ -38,7 +40,7 @@ class App extends Component {
             addChannel={this.addChannel.bind(this)}
             setChannel={this.setChannel.bind(this)}
           />
-          <UserSection
+          <UserSection 
             {...this.state}
             setUserName={this.setUserName.bind(this)}
           />
