@@ -1,11 +1,11 @@
 import React, {Component, PropTypes} from 'react';
 
-class ChannelForm extends Component {
+class UserForm extends Component {
   onSubmit(e) {
     e.preventDefault();
-    const node = this.refs.channel;
-    const channelName = node.value;
-    this.props.addChannel(channelName);
+    const node = this.refs.userName;
+    const userName = node.value;
+    this.props.setUserName(userName);
     node.value = '';
   }
   
@@ -13,11 +13,11 @@ class ChannelForm extends Component {
     return (
       <form onSubmit={this.onSubmit.bind(this)}>
         <div className='form-group'>
-          <input 
+          <input
             className='form-control'
-            placeholder='Add Channel'
+            placeholder='Set your username'
             type='text'
-            ref='channel'
+            ref='userName'
             />
         </div>
       </form>
@@ -25,8 +25,8 @@ class ChannelForm extends Component {
   }
 }
 
-ChannelForm.propTypes = {
-  addChannel: PropTypes.func.isRequired
+UserForm.propTypes = {
+  setUserName: PropTypes.func.isRequired
 }
 
-export default ChannelForm;
+export default UserForm;

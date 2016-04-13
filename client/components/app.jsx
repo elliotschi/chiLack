@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import ChannelSection from './channels/channelSection';
+import UserSection from './users/userSection';
 
 class App extends Component {
   constructor(props) {
@@ -12,6 +13,7 @@ class App extends Component {
   
   addChannel(name) {
     let {channels} = this.state;
+    channels = channels.slice();
     channels.push({id: channels.length, name});
     this.setState({channels});
   }
@@ -20,13 +22,28 @@ class App extends Component {
     this.setState({activeChannel});
   }
   
+  setUserName(name) {
+    let {users} = this.state;
+    users = users.slice();
+    users.push({id: users.length, name});
+    this.setState({users});
+  }
+  
   render() {
     return (
-      <ChannelSection channels={this.state.channels}
-        addChannel={this.addChannel.bind(this)}
-        setChannel={this.setChannel.bind(this)}
-      />
-   
+      <div className='app'>
+        <div className='nav'>
+          <ChannelSection
+            {...this.state}
+            addChannel={this.addChannel.bind(this)}
+            setChannel={this.setChannel.bind(this)}
+          />
+          <UserSection
+            {...this.state}
+            setUserName={this.setUserName.bind(this)}
+          />
+        </div>
+      </div>
     );
   }
 }

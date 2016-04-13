@@ -7,10 +7,10 @@ class Channel extends Component {
     setChannel(channel);
   }
   render() {
-    const {channel} = this.props;
+    const {channel, activeChannel} = this.props;
     
     return (
-      <li>
+      <li className={channel === activeChannel ? 'active' : ''}>
         <a 
           onClick={this.onClick.bind(this)}>
           {channel.name}
@@ -22,7 +22,8 @@ class Channel extends Component {
 
 Channel.propTypes = {
   channel: PropTypes.object.isRequired,
-  setChannel: PropTypes.func.isRequired
+  setChannel: PropTypes.func.isRequired,
+  activeChannel: PropTypes.object.isRequired
 };
 
 export default Channel;
