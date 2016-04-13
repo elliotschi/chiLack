@@ -11,14 +11,57 @@ class App extends Component {
       channels: [],
       users: [],
       messages: [],
-      activeChannel: {}
+      activeChannel: {},
+      connected: false
     };
   }
+
+  // react life cycle method for when a component first mounts
+  componentDidMount() {
+    let ws = this.ws = new WebSocket('ws://echo.websocket.org');
+    // console.log(ws);
+
+    ws.onmessage = this.message.bind(this);
+    ws.open = this.open.bind(this);
+    ws.close = this.close.bind(this);
+  }
+
+  message(e) {
+    const event = JSON.parse(e.data);
+
+    if (event.name === 'channel add') {
+      this.newChannel(event.data);
+    }
+  }
+
+  open() {
+    this.setState({connected: true});
+  }
+
+  close() {
+    this.setState({connected:false});
+  }
+
+  newChannel(channel) {
+    let {channels} = this.state;
+    channels = channels.concat([channel]);
+    this.setState({channels});
+  }
+
   // channel functions
   addChannel(name) {
     let {channels} = this.state;
-    channels = channels.concat([{id: channels.length, name}]);
-    this.setState({channels});
+    // channels = channels.concat([{id: channels.length, name}]);
+    // this.setState({channels});
+
+    let msg = {
+      name: 'channel add',
+      data: {
+        id: channels.length,
+        name
+      }
+    };
+    this.ws.send(JSON.stringify(msg));
   }
   
   setChannel(activeChannel) {
