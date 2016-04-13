@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import ChannelSection from './channels/channelSection';
 import UserSection from './users/userSection';
 import MessageSection from './messages/messageSection';
+import Socket from '../socket';
 
 class App extends Component {
   constructor(props) {
@@ -18,31 +19,65 @@ class App extends Component {
 
   // react life cycle method for when a component first mounts
   componentDidMount() {
-    let ws = this.ws = new WebSocket('ws://echo.websocket.org');
-    // console.log(ws);
-
-    ws.onmessage = this.message.bind(this);
-    ws.open = this.open.bind(this);
-    ws.close = this.close.bind(this);
+    let socket = this.socket = new Socket();
+    socket.on('connect', this.onConnect.bind(this));
+    socket.on('disconnect', this.onDisconnect.bind(this));
+    socket.on('channel add', this.onAddChannel.bind(this));
+    socket.on('user add', this.onUserAdd.bind(this));
+    socket.on('user edit', this.onUserEdit.bind(this));
+    socket.on('user remove', this.onUserRemove.bind(this));
+    socket.on('message add', this.onMessageAdd.bind(this));
   }
 
-  message(e) {
-    const event = JSON.parse(e.data);
+  onMessageAdd(message) {
+    let {messages} = this.state;
 
-    if (event.name === 'channel add') {
-      this.newChannel(event.data);
-    }
+    messages = messages.concat([message]);
+
+    this.setState({messages});
   }
 
-  open() {
+  onUserAdd(user) {
+    let {users} = this.state;
+
+    users = users.concat([user]);
+    this.setState({users});
+  }
+
+  onUserEdit(editUser) {
+    let {users} = this.state;
+
+    users = users.map(user => {
+      if (editUser.id === user.id) {
+        return editUser;
+      }
+      return user;
+    });
+
+    this.setState({users});
+  }
+
+  onUserRemote(removeUser) {
+    let {user} = this.state;
+
+    users = users.filter(user => {
+      return user.id !== removeUser.id;
+    });
+
+    this.setState({users});
+  }
+
+  onConnect() {
     this.setState({connected: true});
+    this.socket.emit('channel subscribe');
+    this.socket.emit('user subscribe');
   }
 
-  close() {
-    this.setState({connected:false});
+  onDisconnect() {
+    this.setState({connected: false});
   }
 
-  newChannel(channel) {
+  onAddChannel(channel) {
     let {channels} = this.state;
     channels = channels.concat([channel]);
     this.setState({channels});
@@ -50,41 +85,39 @@ class App extends Component {
 
   // channel functions
   addChannel(name) {
-    let {channels} = this.state;
-    // channels = channels.concat([{id: channels.length, name}]);
-    // this.setState({channels});
+    // let {channels} = this.state;
+    // // channels = channels.concat([{id: channels.length, name}]);
+    // // this.setState({channels});
 
-    let msg = {
-      name: 'channel add',
-      data: {
-        id: channels.length,
-        name
-      }
-    };
-    this.ws.send(JSON.stringify(msg));
+    // let msg = {
+    //   name: 'channel add',
+    //   data: {
+    //     id: channels.length,
+    //     name
+    //   }
+    // };
+    // this.ws.send(JSON.stringify(msg));
+    this.socket.emit('channel add', {name});
   }
   
   setChannel(activeChannel) {
     this.setState({activeChannel});
+    this.socket.emit('message unsubscribe');
+
+    this.setState({messages: []});
+
+    this.socket.emit('message subscribe', {channelId: activeChannel.id});
   }
   
   // user functions
   setUserName(name) {
-    let {users} = this.state;
-    users = users.concat([{id: users.length, name}]);
-    this.setState({users});
+    this.socket.emit('user edit', {name});
   }
   
   // message functions
   addMessage(body) {
-    // gets messages and users arrays from the state object
-    let {messages, users} = this.state;
-    let createdAt = new Date();
-    let author = users.length > 0 ? users[0].name : 'anon';
-    
-    messages = messages.concat([{id: messages.length, body, createdAt, author}]);
-    
-    this.setState({messages});
+    let {activeChannel} = this.state;
+    this.socket.emit('message add', {channelId: activeChannel.id, body});
   }
   
   render() {
