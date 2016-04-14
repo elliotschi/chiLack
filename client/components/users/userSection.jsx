@@ -23,4 +23,4 @@ UserSection.propTypes = {
   setUserName: PropTypes.func.isRequired
 }
 
-export default UserSection
+export default UserSection;
