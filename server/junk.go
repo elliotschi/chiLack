@@ -1,65 +1,65 @@
-package main
+// package main
 
-import (
-    "fmt"
-    "encoding/json"
-    "github.com/mitchellh/mapstructure"
-)
+// import (
+//     "fmt"
+//     "encoding/json"
+//     "github.com/mitchellh/mapstructure"
+// )
 
-type Message struct {
-  Name string `json:"name"`
-  Data interface{} `json:"data"`
-}
+// type Message struct {
+//   Name string `json:"name"`
+//   Data interface{} `json:"data"`
+// }
 
-type Channel struct {
-  Id string `json:"id"`
-  Name string `json:"name"`
-}
+// type Channel struct {
+//   Id string `json:"id"`
+//   Name string `json:"name"`
+// }
 
-func main() {
-  recRawMsg := []byte(`{"name":"channel add", "data":{"name": "my channel"}}`)
+// func main() {
+//   recRawMsg := []byte(`{"name":"channel add", "data":{"name": "my channel"}}`)
     
-  var recMessage Message
+//   var recMessage Message
   
-  err := json.Unmarshal(recRawMsg, &recMessage)
+//   err := json.Unmarshal(recRawMsg, &recMessage)
   
-  if err != nil {
-    fmt.Println(err)
-    return
-  }
+//   if err != nil {
+//     fmt.Println(err)
+//     return
+//   }
   
-  fmt.Printf("%#v\n", recMessage)
+//   fmt.Printf("%#v\n", recMessage)
   
-  if recMessage.Name == "channel add" {
-    channel, err := addChannel(recMessage.Data)
-    var sendMessage Message
-    sendMessage.Name = "channel add"
-    sendMessage.Data = channel
-    sendRawMsg, err := json.Marshal(sendMessage)
+//   if recMessage.Name == "channel add" {
+//     channel, err := addChannel(recMessage.Data)
+//     var sendMessage Message
+//     sendMessage.Name = "channel add"
+//     sendMessage.Data = channel
+//     sendRawMsg, err := json.Marshal(sendMessage)
     
-    if err != nil {
-      fmt.Println(err)
-      return
-    }
+//     if err != nil {
+//       fmt.Println(err)
+//       return
+//     }
     
-    fmt.Println(string(sendRawMsg))
-  }
-}
+//     fmt.Println(string(sendRawMsg))
+//   }
+// }
 
-func addChannel(data interface{}) (Channel, error) {
-  var channel Channel
+// func addChannel(data interface{}) (Channel, error) {
+//   var channel Channel
   
-  // channelMap := data.(map[string]interface{})
-  // channel.Name = channelMap["name"].(string)
+//   // channelMap := data.(map[string]interface{})
+//   // channel.Name = channelMap["name"].(string)
   
-  err := mapstructure.Decode(data, &channel)
+//   err := mapstructure.Decode(data, &channel)
   
-  if err != nil {
-    return channel, err
-  }
+//   if err != nil {
+//     return channel, err
+//   }
   
-  channel.Id = "1"
+//   channel.Id = "1"
   
-  fmt.Printf("%#v\n", channel)
-  return channel, nil
-}
+//   fmt.Printf("%#v\n", channel)
+//   return channel, nil
+// }
