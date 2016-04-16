@@ -25,7 +25,11 @@ var upgrader = websocket.Upgrader{
 }
 
 func main() {
-  http.HandleFunc("/", handler)
+  router := &Router{}
+  
+  router.Handle("channel add", addChannel)
+  
+  http.Handle("/", router)
   http.ListenAndServe(":4000", nil)
   
 }
