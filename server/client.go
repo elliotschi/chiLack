@@ -40,7 +40,7 @@ func r() time.Duration {
   return time.Millisecond * time.Duration(rand.Intn(1000))
 }
 
-func newClient() *Client {
+func NewClient() *Client {
   return &Client{
     send: make(chan Message),
     
@@ -56,7 +56,7 @@ func main() {
   
   // msg := <-msgChan
   // fmt.Println(msg)
-  client := newClient()
+  client := NewClient()
   go client.subscribeChannels()
   go client.subscribeMessages()
   client.write()

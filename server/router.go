@@ -3,6 +3,7 @@ package main
 import (
   "github.com/gorilla/websocket"
   "net/http"
+  "fmt"
 )
 
 type Handler func(* Client, interface{})
@@ -29,4 +30,13 @@ func (r *Router) Handle(msgName string, handler Handler) {
 
 func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
   socket, err := upgrader.Upgrade(w, r, nil)
+  
+  if err != nil {
+    w.WriteHeader(http.StatusInternalServerError)
+    fmt.Fprint(w, err.Error)
+    return
+  } 
+  client := NewClient(socket)
+  go client.Write()
+  client.Read()
 }
