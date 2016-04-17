@@ -25,7 +25,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func main() {
-  router := &Router{}
+  router := NewRouter{}
   
   router.Handle("channel add", addChannel)
   

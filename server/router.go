@@ -5,7 +5,7 @@ import (
   "net/http"
 )
 
-type Handler func()
+type Handler func(* Client, interface{})
 
 var upgrader = websocket.Upgrader{
   ReadBufferSize: 1024,
@@ -13,10 +13,18 @@ var upgrader = websocket.Upgrader{
   CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-type Router struct {}
+type Router struct {
+  rules map[string]Handler
+}
+
+func NewRouter() *Router{
+  return &Router {
+    rules: make(map[string]Handler),
+  }
+}
 
 func (r *Router) Handle(msgName string, handler Handler) {
-  
+  r.rules[msgName] = handler
 }
 
 func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
