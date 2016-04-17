@@ -22,17 +22,26 @@ func main() {
   }
   
   user := User{
-    Name: "anonymous",
+    Name: "elliot",
     
   }
-  response, err := r.Table("user").
-    Insert(user).
-    RunWrite(session)
+  // response, err := r.Table("user").
+  //   Insert(user).
+  //   RunWrite(session)
     
-  if err != nil {
-    fmt.Println(err)
-    return
-  }
+  // if err != nil {
+  //   fmt.Println(err)
+  //   return
+  // }
   
-  fmt.Printf("%#v\n", response)
+  // fmt.Printf("%#v\n", response)
+  
+  cursor, _ := r.Table("user").
+    Changes(r.ChangesOpts{IncludeInitial: true}).
+    Run(session)
+    
+  var changeResponse r.ChangeResponse  
+  for cursor.Next(&changeResponse) {
+    fmt.Printf("%#vn", changeResponse)
+  }
 }
