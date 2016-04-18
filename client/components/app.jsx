@@ -19,7 +19,8 @@ class App extends Component {
 
   // react life cycle method for when a component first mounts
   componentDidMount() {
-    let socket = this.socket = new Socket();
+    let ws = new WebSocket('ws://localhost:4000');
+    let socket = this.socket = new Socket(ws);
     socket.on('connect', this.onConnect.bind(this));
     socket.on('disconnect', this.onDisconnect.bind(this));
     socket.on('channel add', this.onAddChannel.bind(this));
@@ -57,7 +58,7 @@ class App extends Component {
     this.setState({users});
   }
 
-  onUserRemote(removeUser) {
+  onUserRemove(removeUser) {
     let {user} = this.state;
 
     users = users.filter(user => {
