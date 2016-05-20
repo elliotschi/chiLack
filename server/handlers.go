@@ -28,6 +28,7 @@ type User struct {
   Name string `gorethink:"name"`
 }
 
+// ChannelMessage
 type ChannelMessage struct {
   ID string `gorethink:"id,omitempty"`
   ChannelID string `gorethink:"channelId"`
@@ -101,38 +102,47 @@ func addChannel(client *Client, data interface{}) {
 }
 
 func subscribeChannel(client *Client, data interface{}) {
-  stop := client.NewStopChannel(ChannelStop)
-  result := make(chan r.ChangeResponse)
-  
-  cursor, err := r.Table("channel").Changes(r.ChangesOpts{IncludeInitial: true}).Run(client.session)
-  if err != nil {
-    client.send <- Message{"error", err.Error()}
-    return
-  }
-  
   go func() {
-    var change r.ChangeResponse
-    for cursor.Next(&change) {
-      result <- change
+    stop := client.NewStopChannel(ChannelStop)
+
+    cursor, err := r.Table("channel").Changes(r.ChangesOpts{IncludeInitial: true}).Run(client.session)
+    if err != nil {
+      client.send <- Message{"error", err.Error()}
+      return
     }
+    
+    changeFeedHelper(cursor, "channel", client.send, stop)
   }()
-  
-  go func() {
-    for {
-      select {
-        case <-stop:
-          cursor.Close()
-          return;
-        case change := <-result:
-          if change.NewValue != nil && change.OldValue == nil {
-            client.send <- Message{"channel add", change.NewValue}
-            fmt.Println("sent channel add message")
-          } 
-      }
-    }
-  }()
+
 }
 
 func unsubscribeChannel(client *Client, data interface{}) {
   client.StopForKey(ChannelStop)
+}
+
+func changeFeedHelper(cursor *r.Cursor, changeEventName string, send chan <- Message, stop <- chan bool) {
+  change := make(chan r.ChangeResponse)
+  cursor.Listen(change)
+  for {
+    eventName := ""
+    var data interface {}
+    select {
+      case <- stop:
+        cursor.Close()
+        return
+      
+      case val := <- change:
+        if val.NewValue != nil && val.OldValue == nil {
+          eventName = changeEventName + " add"
+          data = val.NewValue
+        } else if val.NewValue == nil && val.OldValue != nil {
+          eventName = changeEventName + " remove"
+          data = val.OldValue
+        } else if val.NewValue != nil && val.OldValue != nil {
+          eventName = changeEventName + " edit"
+          data = val.NewValue
+        }
+        send <- Message{eventName, data}
+    }
+  }
 }
