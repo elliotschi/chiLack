@@ -8,27 +8,31 @@ import (
 )
 
 const (
+  // ChannelStop ...
   ChannelStop = iota
   UserStop
   MessageStop
 )
 
+// Message ...
 type Message struct {
   Name string `json:"name"`
   Data interface{} `json:"data"`
 }
 
+// Channel ...
 type Channel struct {
-  Id string `json:"id" gorethink:"id,omitempty"`
+  ID string `json:"id" gorethink:"id,omitempty"`
   Name string `json:"name" gorethink:"name,omitempty"`
 }
 
+// User ...
 type User struct {
-  Id string `gorethink:"id,omitempty"`
+  ID string `gorethink:"id,omitempty"`
   Name string `gorethink:"name"`
 }
 
-// ChannelMessage
+// ChannelMessage ...
 type ChannelMessage struct {
   ID string `gorethink:"id,omitempty"`
   ChannelID string `gorethink:"channelId"`
