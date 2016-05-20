@@ -25,3 +25,5 @@ _testmain.go
 
 client/bundle.js
 client/node_modules
+.idea
+

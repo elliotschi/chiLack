@@ -4,6 +4,7 @@ import (
   "github.com/mitchellh/mapstructure"
   r "github.com/dancannon/gorethink"
   "fmt"
+  "time"
 )
 
 const (
@@ -11,6 +12,67 @@ const (
   UserStop
   MessageStop
 )
+
+type Message struct {
+  Name string `json:"name"`
+  Data interface{} `json:"data"`
+}
+
+type Channel struct {
+  Id string `json:"id" gorethink:"id,omitempty"`
+  Name string `json:"name" gorethink:"name,omitempty"`
+}
+
+type User struct {
+  Id string `gorethink:"id,omitempty"`
+  Name string `gorethink:"name"`
+}
+
+type ChannelMessage struct {
+  ID string `gorethink:"id,omitempty"`
+  ChannelID string `gorethink:"channelId"`
+  Body string `gorethink:"body"` 
+  Author string `gorethink:"author"`
+  CreatedAt time.Time `gorethink:"createAt"`
+}
+
+func editUser(client *Client, data interface{}) {
+  var user User
+  
+  err := mapstructure.Decode(data, &user)
+  if err != nil {
+    client.send <- Message{"error", err.Error()}
+    return
+  }
+  
+  client.userName = user.Name
+  
+  go func() {
+    _, err := r.Table("user").Get(client.id).Update(user).RunWrite(client.session)
+      
+    if err != nil {
+      client.send <- Message{"error", err.Error()}
+    }
+  }()
+}
+
+func subscribeUser(client *Client, data interface{}) {
+  go func() {
+    stop := client.NewStopChannel(UserStop)
+    cursor, err := r.Table("user").Changes(r.ChangesOpts{IncludeInitial: true}).Run(client.session)
+    
+    if err != nil {
+      client.send <- Message{"error", err.Error()}
+      return
+    }
+    
+    changeFeedHelper(cursor, "user", client.send, stop)
+  }()
+}
+
+func unsubscribeUser(client *Client, data interface{}) {
+	client.StopForKey(UserStop)
+}
 
 func addChannel(client *Client, data interface{}) {
   var channel Channel

@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from 'react';
+import React, { Component, PropTypes } from 'react';
 import User from './user';
 
 class UserList extends Component {
@@ -20,7 +20,7 @@ class UserList extends Component {
 }
 
 UserList.propTypes = {
-  users: PropTypes.array.isRequired
-}
+  users: PropTypes.array.isRequired,
+};
 
 export default UserList;
